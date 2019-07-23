@@ -1,0 +1,76 @@
+import java.util.Scanner;  //导入Java包
+
+public class bag {          //定义一个类bag
+	private static int n;  //定义一个变量，存放物品数量
+	private static int c;   //定义一个变量，维度
+	private static double[] v; //定义一个一维数组，用来存放价值
+	private static double[] y;  // 一维数组，存放约束条件（最后一行数据）
+    private static int x[];	   //是否装入背包  0为不装入  1为装入
+	private static double [][] shuxing;  //定义一个二维数组，存放物品属性
+    private static double bestcp=0;  //初始化最优解，定义bestcp用来存放当前最优解
+    
+    public static void main(String[] args){
+    Scanner sc=new Scanner(System.in); //从键盘中输入数据
+   n=sc.nextInt();
+   c=sc.nextInt();
+   v=new double[n];
+   shuxing=new double[c][n];
+   y=new double[c];
+   x=new int[n];
+   
+	for(int i=0;i<n;i++){  
+	v[i]=sc.nextDouble();	//输入价值
+	}	
+	for(int i=0;i<c;i++){      
+		for(int j=0;j<n;j++){
+			shuxing[i][j]=sc.nextDouble();	//输入各个物品的属性
+		}
+	}
+	for(int i=0;i<c;i++){  
+		y[i]=sc.nextDouble();			//输入约束条件
+	}
+	for(int i=0;i<n;i++){
+		x[i]=0;				//初始化，所有物品都不装入背包
+	}     
+	sc.close();
+	backtrack(0,0);		//回溯法，调用backtrack()方法
+	System.out.println("bestcp = " + bestcp);		//输出最优解
+	}  
+       
+	/*
+	 * @param i：查找到了第i个物品（i从1开始索引）
+	 * @param cv：当前包中的价值
+	 */
+private static void backtrack(int i,double cv){  //这里用的是递归回溯
+	if(i>=n){    //如果i大于物品数量（到达叶子节点）
+		if(cv>bestcp){  //如果当前物品的价值大于最优解，则把它赋值给最优解bestcp
+			bestcp=cv;  	//更新最大价值
+		}
+	}
+	else{      //不是叶子节点的情况
+		x[i] = 1;		//将物品i装入背包
+		for(int j=0;j<c;j++) {     //循环判断是否满足所有约束条件
+			if (y[j]-shuxing[j][i]<0）//不满足约束条件时候的情况 （备注：这里的数组y[i]是表示第i个约束条件剩余的装载空间）
+			{
+				x[i]=0;		//不将物品装入背包
+				break;		//有一个条件不满足了就可以提前结束循环了
+			}
+		}
+       if(x[i]==1) {   //如果物品i装入了背包
+        	cv+=v[i];	//装入了背包肯定要更新当前价值  就是  原来的价值cv 加上物品i的价值 v[i] 变成新的价值cv
+        	for(int p=0;p<c;p++)  
+        	{
+        		y[p]-=shuxing[p][i];       	//装入了物品，第p个约束条件的剩余装载空间要减去物品i所对应的消耗
+        	}
+        	backtrack(i+1,cv);	//物品i装入背包时，搜索下一个节点
+        	//搜索完后回溯
+        	cv-=v[i];	//回溯时当前价值cv 减去物品i的价值 v[i]
+        	for(int p=0;p<c;p++)    
+        	{
+        		y[p]+=yueshu[p][i];		//回溯时  把刚刚物品i消耗的装载空间加回来
+        	}
+        }
+       backtrack(i+1,cv);  		//物品i不装入背包时，搜索下一个节点
+       }
+	}
+}
